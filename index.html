@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>王玉蕾 - 平面设计师作品集</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <!-- 引入 Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts: Montserrat (标题) 和 Lato (正文) -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 自定义字体设置 */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Lato', sans-serif; /* 正文默认字体 */
+            @apply bg-gray-100 text-gray-800;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif; /* 标题字体 */
+        }
+        /* 导航链接激活时的样式 */
+        .nav-link.active {
+            @apply text-blue-700 font-semibold border-b-2 border-blue-700; /* 添加底部边框，更强调选中状态 */
+        }
+
+        /* 自定义动画 - 调整为 fadeIn (因为不再有 scale-up 动画) */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0; /* 初始隐藏 */
+        }
+        .animate-fade-in.delay-200 { animation-delay: 0.2s; }
+        .animate-fade-in.delay-400 { animation-delay: 0.4s; }
+
+        /* 作品卡片悬停效果 */
+        .portfolio-card-hover {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .portfolio-card-hover:hover {
+            transform: translateY(-8px) scale(1.02); /* 向上浮动并略微放大 */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* 更明显的阴影 */
+        }
+
+        /* 弹窗缩略图样式 */
+        .thumbnail-image {
+            cursor: pointer;
+            @apply border-2 border-transparent rounded-lg object-cover transition-all duration-200;
+        }
+        .thumbnail-image.active {
+            @apply border-blue-500 shadow-md; /* 选中状态的边框和阴影 */
+        }
+        /* 自定义缩略图滚动条样式 (仅限 WebKit 浏览器) */
+        #modal-thumbnails::-webkit-scrollbar {
+            height: 8px;
+        }
+        #modal-thumbnails::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        #modal-thumbnails::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        #modal-thumbnails::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- 导航栏 - Header Section -->
+    <header class="bg-white shadow-md fixed w-full z-50 py-4 px-4 sm:px-6 lg:px-8 border-b border-gray-200">
+        <nav class="container mx-auto flex justify-between items-center">
+            <!-- 网站Logo或您的姓名 -->
+            <a href="#about" class="text-3xl font-extrabold text-gray-900 rounded-lg p-2 transition-colors duration-300 hover:text-blue-700">王玉蕾 / <span class="text-blue-600">设计师</span></a>
+
+            <!-- 桌面端导航菜单 -->
+            <ul class="hidden md:flex space-x-10">
+                <li><a href="#about" class="nav-link text-gray-700 hover:text-blue-700 transition-all duration-300 text-lg font-medium py-2 px-3 rounded-md hover:bg-blue-50">关于我</a></li>
+                <li><a href="#portfolio" class="nav-link text-gray-700 hover:text-blue-700 transition-all duration-300 text-lg font-medium py-2 px-3 rounded-md hover:bg-blue-50">工作作品</a></li>
+                <li><a href="#personal-projects" class="nav-link text-gray-700 hover:text-blue-700 transition-all duration-300 text-lg font-medium py-2 px-3 rounded-md hover:bg-blue-50">个人学习作品</a></li>
+                <!-- <li><a href="#contact" class="nav-link text-gray-700 hover:text-blue-700 transition-all duration-300 text-lg font-medium py-2 px-3 rounded-md hover:bg-blue-50">联系我</a></li> -->
+            </ul>
+
+            <!-- 移动端汉堡菜单按钮 -->
+            <button id="mobile-menu-button" class="md:hidden p-2 text-gray-600 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </nav>
+
+        <!-- 移动端下拉菜单 (隐藏，通过JS控制显示/隐藏) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white mt-4 rounded-lg shadow-lg py-2">
+            <a href="#about" class="block px-4 py-3 text-gray-800 hover:bg-blue-50 transition-colors duration-200 nav-link">关于我</a>
+            <a href="#portfolio" class="block px-4 py-3 text-gray-800 hover:bg-blue-50 transition-colors duration-200 nav-link">工作作品</a>
+            <a href="#personal-projects" class="block px-4 py-3 text-gray-800 hover:bg-blue-50 transition-colors duration-200 nav-link">个人学习作品</a>
+            <!-- <a href="#contact" class="block px-4 py-3 text-gray-800 hover:bg-blue-50 transition-colors duration-200 nav-link">联系我</a> -->
+        </div>
+    </header>
+
+    <main>
+        <!-- 关于我 - About Me Section (现在是首页) -->
+        <section id="about" class="pt-28 pb-20 md:pt-36 md:pb-32 bg-white shadow-inner min-h-screen flex items-center">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-center mb-16 text-gray-900 leading-tight animate-fade-in">
+                    一切始于<span class="text-blue-700">创意与热爱</span>
+                </h1>
+                <div class="flex flex-col md:flex-row items-center md:space-x-16">
+                    <!-- 您的头像或专业照片 -->
+                    <div class="mb-10 md:mb-0 md:w-1/3 flex justify-center flex-shrink-0 animate-fade-in delay-200">
+                        <!-- 修改了这里，使用 w-72 h-72 确保圆形显示 -->
+                        <img src="assets/images/avatars/girl.jpg"  alt="王玉蕾" class="w-72 h-72 object-cover rounded-full border-0 border-white shadow-lg transition-transform duration-300 hover:scale-105">
+                    </div>
+                    
+                    <div class="md:w-2/3 text-lg text-gray-700 leading-relaxed space-y-6 animate-fade-in delay-400">
+                        <p>
+                            您好！我叫王玉蕾，是一位充满热情和创意的平面设计师，拥有<span class="font-semibold text-gray-900">5年以上的行业经验</span>。我坚信设计不仅仅是美观的呈现，更是解决业务问题、助力业务增长和连接用户的强大工具。
+                        </p>
+                        <p>
+                            我的专业领域涵盖<span class="font-semibold text-gray-900">品牌视觉设计、新媒体运营设计、产品手册设计、线下活动设计</span>。我擅长从概念构思到最终实现的整个设计流程，注重细节和创新。
+                        </p>
+                        <p>
+                            我熟练运用以下设计工具：
+                            <span class="font-extrabold text-blue-700 block mt-3 text-xl">
+                                Adobe Photoshop, Adobe Illustrator, Adobe InDesign等,
+                            </span>
+                        </p>
+                        <p>
+                            除了专业技能，我还兼修<span class="font-semibold text-gray-900">视频剪辑、3D建模、文案策划等</span>。期待能将我的设计热情和专业技能带入新的团队，共同创造更多有影响力的作品。
+                        </p>
+                        <!-- 新增的两个按钮 -->
+                        <div class="mt-12 flex flex-col sm:flex-row justify-center md:justify-start gap-4 md:gap-6">
+                            <a href="#portfolio" class="bg-blue-600 text-white py-3 px-8 rounded-full shadow-lg hover:bg-blue-700 hover:scale-105 transform transition-all duration-300 font-semibold text-lg text-center
+                                        hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-300">
+                                查看工作项目作品集
+                            </a>
+                            <a href="#personal-projects" class="bg-purple-600 text-white py-3 px-8 rounded-full shadow-lg hover:bg-purple-700 hover:scale-105 transform transition-all duration-300 font-semibold text-lg text-center
+                                        hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-purple-300">
+                                查看个人学习作品集
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 作品集 - Professional Portfolio Section -->
+        <section id="portfolio" class="py-20 md:py-32 bg-gray-100">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+                <h2 class="text-4xl font-bold text-center mb-16 text-gray-900 leading-tight">
+                    精选<span class="text-blue-700">工作项目</span>
+                </h2>
+                
+                <!-- 作品分类导航 (可选，如果作品多可以考虑) -->
+                <div class="flex justify-center flex-wrap gap-3 md:gap-5 mb-12">
+                    <button class="bg-blue-700 text-white py-2 px-6 md:py-3 md:px-8 rounded-full text-lg font-semibold hover:bg-blue-800 transition-colors duration-300 shadow-md">全部</button>
+                    <button class="bg-white text-gray-800 border border-gray-300 py-2 px-6 md:py-3 md:px-8 rounded-full text-lg font-medium hover:bg-gray-50 transition-colors duration-300 shadow-sm">品牌视觉设计</button>
+                    <button class="bg-white text-gray-800 border border-gray-300 py-2 px-6 md:py-3 md:px-8 rounded-full text-lg font-medium hover:bg-gray-50 transition-colors duration-300 shadow-sm">网站视觉营销</button>
+                    <button class="bg-white text-gray-800 border border-gray-300 py-2 px-6 md:py-3 md:px-8 rounded-full text-lg font-medium hover:bg-gray-50 transition-colors duration-300 shadow-sm">新媒体运营设计</button>
+                    <button class="bg-white text-gray-800 border border-gray-300 py-2 px-6 md:py-3 md:px-8 rounded-full text-lg font-medium hover:bg-gray-50 transition-colors duration-300 shadow-sm">排版</button>
+                </div>
+
+                <!-- 作品网格 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+                    <!-- 作品项 1 -->
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden group portfolio-card-hover">
+                        <!-- 注意：imageUrlThumbnail 现在是第一张图的缩略图，projectImages 是一个数组 -->
+                        <a href="javascript:void(0);" onclick="showProjectModal(
+                            '品牌视觉设计',
+                            '随着消费升级推动家居市场对文化质感需求的不断攀升,公司推出[锦绣大唐]品牌, 以[新中奢]定位抢占中式瓷砖高地. 设计通过左右构图/线性渐变背景/中式留白等方式, 同时结合螺旋曲线, 融合传统与现代元素, 传递品牌价值',
+                            '品牌重塑',
+                            'Adobe Illustrator, Adobe Photoshop, Adobe InDesign',
+                            [
+                                'assets/images/portfolio/project-1/p1-image1.jpg', 
+                                'assets/images/portfolio/project-1/p1-image2.jpg', 
+                                'assets/images/portfolio/project-1/p1-image3.jpg',
+                                'assets/images/portfolio/project-1/p1-image4.jpg',
+                                'assets/images/portfolio/project-1/p1-image5.jpg',
+                                'assets/images/portfolio/project-1/p1-image6.jpg',
+                                'assets/images/portfolio/project-1/p1-image7.jpg',
+                                'assets/images/portfolio/project-1/p1-image8.jpg',
+                                'assets/images/portfolio/project-1/p1-image9.jpg',
+                                'assets/images/portfolio/project-1/p1-image10.jpg',
+                                'assets/images/portfolio/project-1/p1-image11.jpg',
+                                'assets/images/portfolio/project-1/p1-image12.jpg',
+                            ]
+                        );">
+                            <img src="assets/images/portfolio/project-1/thumbnail.jpg" alt="品牌重塑项目" class="w-full h-60 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">品牌视觉设计</h3>
+                                <p class="text-gray-600 text-sm">品牌设计，企业宣推</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 作品项 2 -->
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden group portfolio-card-hover">
+                        <a href="javascript:void(0);" onclick="showProjectModal(
+                            '新媒体运营设计',
+                            '在新媒体设计中，我注重以用户为中心，通过深入理解品牌调性和受众需求，创造具有视觉冲击力和传播力的设计。设计过程中，我会结合新媒体的特点，合理运用动态效果、交互设计和多平台适配策略，使设计不仅美观，而且高效传达信息并提升用户体验',
+                            '用户沟通',
+                            'Photoshop, Adobe Illustrator',
+                            [
+                                'assets/images/portfolio/project-2/p2-image1.jpg', 
+                                'assets/images/portfolio/project-2/p2-image2.jpg',
+                                'assets/images/portfolio/project-2/p2-image3.jpg',
+                                'assets/images/portfolio/project-2/p2-image4.jpg',
+                                'assets/images/portfolio/project-2/p2-image5.jpg',
+                                // 'assets/images/portfolio/project-2/p2-image6.jpg',
+                                // 'assets/images/portfolio/project-2/p2-image7.jpg',
+                                'assets/images/portfolio/project-2/p2-image8.jpg',
+                                'assets/images/portfolio/project-2/p2-image9.jpg',
+                                'assets/images/portfolio/project-2/p2-image10.jpg',
+                                'assets/images/portfolio/project-2/p2-image11.jpg',
+                                'assets/images/portfolio/project-2/p2-image12.jpg',
+                                'assets/images/portfolio/project-2/p2-image13.jpg',
+                                'assets/images/portfolio/project-2/p2-image14.jpg',
+                                
+                            ]
+                        );">
+                            <img src="assets/images/portfolio/project-2/thumbnail.jpg" alt="新媒体运营设计" class="w-full h-60 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">新媒体运营设计</h3>
+                                <p class="text-gray-600 text-sm">用户沟通, 品牌主张</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 作品项 3 -->
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden group portfolio-card-hover">
+                        <a href="javascript:void(0);" onclick="showProjectModal(
+                            '商业插画系列',
+                            '该项目涉及一系列用于营销活动的插画创作。我结合了扁平化设计和手绘风格，为不同的产品特性设计了生动有趣的视觉元素，增强了品牌亲和力。这些插画被广泛应用于网站、社交媒体和线下宣传材料中，取得了良好的反响。',
+                            '插画',
+                            'Adobe Illustrator, Adobe Photoshop, Adobe InDesign',
+                            [
+                                'assets/images/portfolio/project-3/p3-image1.jpg', 
+                                'assets/images/portfolio/project-3/p3-image2.jpg',
+                                'assets/images/portfolio/project-3/p3-image3.jpg',
+                                'assets/images/portfolio/project-3/p3-image4.jpg',
+                                'assets/images/portfolio/project-3/p3-image5.jpg',
+                                'assets/images/portfolio/project-3/p3-image6.jpg',
+                                'assets/images/portfolio/project-3/p3-image7.jpg',
+                                'assets/images/portfolio/project-3/p3-image8.jpg',
+                                'assets/images/portfolio/project-3/p3-image9.jpg',
+                                'assets/images/portfolio/project-3/p3-image10.jpg',
+                                // 'assets/images/portfolio/project-3/p3-image11.jpg',
+                                // 'assets/images/portfolio/project-3/p3-image12.jpg',
+                                // 'assets/images/portfolio/project-3/p3-image13.jpg',
+                                // 'assets/images/portfolio/project-3/p3-image14.jpg',
+                            ]
+                        );">
+                            <img src="assets/images/portfolio/project-3/thumbnail.jpg" alt="节日节气系列" class="w-full h-60 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">节日节气系列</h3>
+                                <p class="text-gray-600 text-sm">节日营销，品牌宣言</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 作品项 4 -->
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden group portfolio-card-hover">
+                        <a href="javascript:void(0);" onclick="showProjectModal(
+                            '杂志与书籍排版',
+                            '这是一个为[虚拟客户]设计的宣传册和海报系列。我专注于信息层级和视觉引导，确保复杂的内容能够清晰且吸引人地传达给目标受众。通过精心的字体选择、网格系统应用和图片布局，提升了阅读体验和整体的视觉冲击力。',
+                            '排版',
+                            'Adobe InDesign, Adobe Photoshop',
+                            [
+                                'https://placehold.co/800x600/c4e0ff/2b2d42?text=排版-主图',
+                                'https://placehold.co/800x600/c4e0ff/2b2d42?text=排版-内页1',
+                                'https://placehold.co/800x600/c4e0ff/2b2d42?text=排版-内页2',
+                                'https://placehold.co/800x600/c4e0ff/2b2d42?text=排版-封面'
+                            ]
+                        );">
+                            <img src="https://placehold.co/400x300/c4e0ff/2b2d42?text=排版缩略图" alt="杂志与书籍排版" class="w-full h-60 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">杂志与书籍排版</h3>
+                                <p class="text-gray-600 text-sm">视觉传达，信息设计</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 作品项 5 -->
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden group portfolio-card-hover">
+                        <a href="javascript:void(0);" onclick="showProjectModal(
+                            '海报设计系列',
+                            '为一系列文化活动设计的主题海报。通过大胆的色彩搭配、独特的构图和富有表现力的插画，吸引目标受众的注意力，并有效传达活动信息。每个海报都有其独特的设计语言，但又保持了整体的系列感。',
+                            '海报设计',
+                            'Adobe Photoshop, Adobe Illustrator',
+                            [
+                                'https://placehold.co/800x600/ffe4e6/2b2d42?text=海报-主图',
+                                'https://placehold.co/800x600/ffe4e6/2b2d42?text=海报-变体1',
+                                'https://placehold.co/800x600/ffe4e6/2b2d42?text=海报-变体2'
+                            ]
+                        );">
+                            <img src="https://placehold.co/400x300/ffe4e6/2b2d42?text=海报缩略图" alt="海报设计系列" class="w-full h-60 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">海报设计系列</h3>
+                                <p class="text-gray-600 text-sm">宣传物料，视觉营销</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 作品项 6 -->
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden group portfolio-card-hover">
+                        <a href="javascript:void(0);" onclick="showProjectModal(
+                            '网页设计概念',
+                            '为一家电商平台设计的网页概念。注重用户体验和视觉吸引力，通过清晰的布局、现代的图标和引人入胜的图片，提升购物体验。响应式设计确保在各种设备上都能提供一致的浏览体验。',
+                            '网页设计',
+                            'Figma, Adobe Photoshop',
+                            [
+                                'https://placehold.co/800x600/e6e6fa/2b2d42?text=网页概念-主图',
+                                'https://placehold.co/800x600/e6e6fa/2b2d42?text=网页概念-页面1',
+                                'https://placehold.co/800x600/e6e6fa/2b2d42?text=网页概念-页面2',
+                                'https://placehold.co/800x600/e6e6fa/2b2d42?text=网页概念-手机端'
+                            ]
+                        );">
+                            <img src="https://placehold.co/400x300/e6e6fa/2b2d42?text=网页概念缩略图" alt="网页设计概念" class="w-full h-60 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">网页设计概念</h3>
+                                <p class="text-gray-600 text-sm">UI设计，用户体验</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 复制粘贴更多工作作品项到这里 -->
+                </div>
+                
+                <div class="text-center mt-16">
+                    <button class="bg-blue-100 border border-blue-300 text-blue-700 py-3 px-10 rounded-full hover:bg-blue-200 transition-colors duration-300 font-semibold text-lg shadow-md
+                                hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-200">
+                        加载更多工作作品
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 个人学习作品 - Personal Learning Projects Section -->
+        <section id="personal-projects" class="py-20 md:py-32 bg-blue-50 shadow-inner">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+                <h2 class="text-4xl font-bold text-center mb-16 text-gray-900 leading-tight">
+                    <span class="text-purple-700">个人学习与实验项目</span>
+                </h2>
+                <p class="text-center text-lg text-gray-700 mb-12 max-w-3xl mx-auto">
+                    这些项目展示了我在设计领域的好奇心、学习能力和对新技术的探索。它们可能源于个人兴趣、课程作业或纯粹的实验。
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+                    <!-- 个人学习作品项 1: 3D 建模 -->
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden group portfolio-card-hover">
+                        <a href="javascript:void(0);" onclick="showProjectModal(
+                            '3D 产品渲染练习',
+                            '这是一个3D建模与渲染的个人学习项目，旨在探索产品可视化。我使用[Blender/Cinema 4D]建模，并进行材质、灯光和渲染的实践。这个项目帮助我理解了三维空间中的设计表现，并掌握了基础的渲染技巧。',
+                            '3D建模/渲染',
+                            'Blender',
+                            [
+                                'https://placehold.co/800x600/dbeafe/1f2937?text=3D渲染-主图',
+                                'https://placehold.co/800x600/dbeafe/1f2937?text=3D渲染-线框图',
+                                'https://placehold.co/800x600/dbeafe/1f2937?text=3D渲染-不同角度'
+                            ]
+                        );">
+                            <img src="https://placehold.co/400x300/dbeafe/1f2937?text=3D渲染缩略图" alt="3D 产品渲染练习" class="w-full h-60 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">3D 产品渲染练习</h3>
+                                <p class="text-gray-600 text-sm">三维可视化，兴趣探索</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 个人学习作品项 2: 动态图形/视频剪辑 -->
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden group portfolio-card-hover">
+                        <a href="javascript:void(0);" onclick="showProjectModal(
+                            '动态图形实验短片',
+                            '这是一个动态图形和视频剪辑的学习项目，通过制作一段简短的动画，探索运动设计和节奏感。我运用了[After Effects/DaVinci Resolve]来实现文字动画、图形过渡和音效同步，旨在提升我的多媒体技能。',
+                            '动态图形/视频',
+                            'After Effects',
+                            [
+                                'https://placehold.co/800x600/bfdbfe/1f2937?text=动态图形-主帧',
+                                'https://placehold.co/800x600/bfdbfe/1f2937?text=动态图形-关键帧1',
+                                'https://placehold.co/800x600/bfdbfe/1f2937?text=动态图形-关键帧2'
+                            ]
+                        );">
+                            <img src="https://placehold.co/400x300/bfdbfe/1f2937?text=动态图形缩略图" alt="动态图形实验短片" class="w-full h-60 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">动态图形实验短片</h3>
+                                <p class="text-gray-600 text-sm">视频剪辑，动效设计</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 个人学习作品项 3: 字体设计/排版研究 -->
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden group portfolio-card-hover">
+                        <a href="javascript:void(0);" onclick="showProjectModal(
+                            '实验性字体设计',
+                            '作为对字体排版的热爱，我尝试设计了一款独特的实验性字体。这个项目专注于字体的结构、平衡和视觉表现力，探索如何在传统字体的基础上加入现代元素，并进行了不同场景下的应用测试。',
+                            '字体设计/排版',
+                            'Glyphs Mini, Adobe Illustrator',
+                            [
+                                'https://placehold.co/800x600/93c5fd/1f2937?text=字体设计-主图',
+                                'https://placehold.co/800x600/93c5fd/1f2937?text=字体设计-字形细节',
+                                'https://placehold.co/800x600/93c5fd/1f2937?text=字体设计-应用场景'
+                            ]
+                        );">
+                            <img src="https://placehold.co/400x300/93c5fd/1f2937?text=字体设计缩略图" alt="实验性字体设计" class="w-full h-60 object-cover transform group-hover:scale-105 transition-transform duration-300">
+                            <div class="p-6">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">实验性字体设计</h3>
+                                <p class="text-gray-600 text-sm">字体艺术，排版实验</p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- 复制粘贴更多个人学习作品项到这里 -->
+                </div>
+
+                <div class="text-center mt-16">
+                    <button class="bg-blue-100 border border-blue-300 text-blue-700 py-3 px-10 rounded-full hover:bg-blue-200 transition-colors duration-300 font-semibold text-lg shadow-md
+                                hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-200">
+                        加载更多学习作品
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 - Footer Section -->
+    <footer class="bg-gray-900 text-white py-8 text-center">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-sm md:text-base">&copy; 2025 王玉蕾. 保留所有权利。</p>
+            <p class="text-xs md:text-sm mt-2 opacity-80">由 王玉蕾 设计与开发。</p>
+        </div>
+    </footer>
+
+    <!-- 项目详情弹窗 (Modal) -->
+    <div id="project-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden transform scale-95 transition-transform duration-300">
+            <div class="relative">
+                <!-- 重点修改：object-cover 改为 object-contain，并添加 bg-gray-200 背景色 -->
+                <img id="modal-project-image" src="" alt="项目图片" class="w-full h-72 md:h-96 object-contain bg-gray-200">
+                <button id="close-modal-button" class="absolute top-5 right-5 bg-white text-gray-800 rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 md:p-8">
+                <h3 id="modal-project-title" class="text-2xl md:text-3xl font-bold text-gray-900 mb-3"></h3>
+                <p id="modal-project-category" class="text-blue-700 font-semibold mb-2 text-base md:text-lg"></p>
+                <p id="modal-project-tools" class="text-gray-600 text-sm md:text-base mb-5"></p>
+                <p id="modal-project-description" class="text-gray-700 leading-relaxed text-base md:text-lg"></p>
+                
+                <!-- 新增：缩略图容器 -->
+                <div id="modal-thumbnails" class="mt-6 grid grid-cols-4 gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                    <!-- 缩略图将由JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Mobile Menu and Project Modal -->
+    <script>
+        // 移动菜单功能
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const navLinks = document.querySelectorAll('.nav-link'); // 选中所有导航链接
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 点击菜单项后隐藏移动菜单
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // 平滑滚动和导航链接高亮
+        window.addEventListener('scroll', () => {
+            let currentSectionId = '';
+            // 获取所有Section
+            const sections = document.querySelectorAll('section');
+
+            sections.forEach(section => {
+                // 调整偏移量以更好地判断当前区域
+                const sectionTop = section.offsetTop - document.querySelector('header').offsetHeight - 50;
+                const sectionHeight = section.clientHeight;
+                if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
+                    currentSectionId = section.id;
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.href.includes(currentSectionId)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // 页面加载时设置初始活跃导航链接
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialHash = window.location.hash || '#about'; // 默认指向 'about'
+            navLinks.forEach(link => {
+                if (link.href.includes(initialHash)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+
+        // 项目详情弹窗功能
+        const projectModal = document.getElementById('project-modal');
+        const closeModalButton = document.getElementById('close-modal-button');
+        const modalProjectTitle = document.getElementById('modal-project-title');
+        const modalProjectCategory = document.getElementById('modal-project-category');
+        const modalProjectTools = document.getElementById('modal-project-tools');
+        const modalProjectDescription = document.getElementById('modal-project-description');
+        const modalProjectImage = document.getElementById('modal-project-image');
+        const modalThumbnails = document.getElementById('modal-thumbnails'); // 新增：缩略图容器
+        const modalContent = projectModal.querySelector('.max-w-4xl'); // 获取弹窗内容容器
+
+        // showProjectModal 函数现在接受 projectImages 数组
+        function showProjectModal(title, description, category, tools, projectImages) {
+            modalProjectTitle.textContent = title;
+            modalProjectDescription.textContent = description;
+            modalProjectCategory.textContent = category;
+            modalProjectTools.textContent = `所用工具：${tools}`;
+            
+            // 清空旧的缩略图
+            modalThumbnails.innerHTML = ''; 
+
+            // 设置主图为第一张图片（如果存在）
+            if (projectImages && projectImages.length > 0) {
+                modalProjectImage.src = projectImages[0];
+                modalProjectImage.alt = title + ' - 主图'; // 辅助文本
+
+                // 动态生成缩略图
+                projectImages.forEach((imageSrc, index) => {
+                    const thumbnail = document.createElement('img');
+                    thumbnail.src = imageSrc; // 缩略图可以直接使用原图，或者您可以准备一套更小的缩略图
+                    thumbnail.alt = `${title} - 缩略图 ${index + 1}`;
+                    thumbnail.classList.add('thumbnail-image', 'w-full', 'h-20', 'sm:h-24', 'md:h-28', 'cursor-pointer');
+                    
+                    // 默认第一张是活跃的
+                    if (index === 0) {
+                        thumbnail.classList.add('active');
+                    }
+
+                    thumbnail.addEventListener('click', () => {
+                        // 切换主图
+                        modalProjectImage.src = imageSrc;
+                        // 移除所有缩略图的 active 样式
+                        document.querySelectorAll('.thumbnail-image').forEach(thumb => {
+                            thumb.classList.remove('active');
+                        });
+                        // 给当前点击的缩略图添加 active 样式
+                        thumbnail.classList.add('active');
+                    });
+                    modalThumbnails.appendChild(thumbnail);
+                });
+            } else {
+                // 如果没有图片，显示一个占位符或提示
+                modalProjectImage.src = 'https://placehold.co/800x600/cccccc/333333?text=无图片';
+                modalProjectImage.alt = '无图片';
+            }
+
+            projectModal.classList.remove('hidden');
+            // 触发过渡动画
+            setTimeout(() => {
+                projectModal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+            }, 10);
+        }
+
+        closeModalButton.addEventListener('click', () => {
+            modalContent.classList.add('scale-95'); // 缩小
+            projectModal.classList.add('opacity-0'); // 渐隐
+            setTimeout(() => {
+                projectModal.classList.add('hidden'); // 完全隐藏
+            }, 300); // 与过渡时间匹配
+        });
+
+        // 点击背景关闭弹窗
+        projectModal.addEventListener('click', (e) => {
+            if (e.target === projectModal) {
+                modalContent.classList.add('scale-95');
+                projectModal.classList.add('opacity-0');
+                setTimeout(() => {
+                    projectModal.classList.add('hidden');
+                }, 300);
+            }
+        });
+    </script>
+</body>
+</html>
